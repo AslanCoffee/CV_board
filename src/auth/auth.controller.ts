@@ -1,29 +1,46 @@
-import { Controller, Get, Req, Post, Body, Patch, Res, Param, Delete } from '@nestjs/common';
+import { Body, Req, Controller, HttpCode, Post, UseGuards, Res, Get } from '@nestjs/common';
+import { Response } from 'express';
 import { AuthService } from './auth.service';
+import RegisterDto from './dto/register.dto';
 import RequestWithUser from './requestWithUser.interface';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { LocalAuthenticationGuard } from './localAuthentication.guard';
+import JwtAuthenticationGuard from './jwt-authentication.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
-
-  // @Post('log-in/:id')
-  // async logIn(@Param('id') id: string, @Req() request: RequestWithUser, @Res() response: Response) {
-  //   const { user } = request
-  //   const cookie = await this.authService.getCookieWithJwtToken(+id)
-  //   request.res.set('Set-Cookie', cookie)
-  //   return request.res.send(user)
-  // }
-
-  @Post('log-out')
-  logOut(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.create(createAuthDto);
+  constructor(private readonly authenticationService: AuthService) {}
+  @Post('register')
+  async register(@Body() registrationData: RegisterDto) {
+    return this.authenticationService.register(registrationData);
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
-  }
 
+@HttpCode(200)
+@UseGuards(LocalAuthenticationGuard)
+@Post('log-in')
+async logIn(@Req() request: RequestWithUser, @Res() response: Response) {
+  const { user } = request
+  const cookie = this.authenticationService.getCookieWithJwtToken(user.id)
+  request.res.set('Set-Cookie', cookie)
+  user.password = undefined
+  return request.res.send(user)
+}
+
+
+
+@UseGuards(JwtAuthenticationGuard)
+@Post('log-out')
+async logOut   (@Req()request:RequestWithUser,@Res() response: Response) {
+  response.setHeader('Set-Cookie', this.authenticationService.getCookieForLogOut());
+  return response.sendStatus(200);
+}
+
+
+@UseGuards(JwtAuthenticationGuard)
+@Get()
+authenticate(@Req() request: RequestWithUser) {
+  const user = request.user;
+  user.password = undefined;
+  return user;
+}
 }

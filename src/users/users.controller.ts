@@ -6,35 +6,44 @@ import {
   Patch,
   Param,
   Delete,
-  Req
+  UseGuards,
+  UploadedFile,
+  Req,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import RequestWithUser from 'src/auth/requestWithUser.interface';
-import { User } from './entities/user.entity';
+import { FileInterceptor } from '@nestjs/platform-express';
+import JwtAuthenticationGuard from 'src/auth/jwt-authentication.guard';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  async create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  @Get()
+  findAll() {
+    return this.usersService.findAll();
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+    return await this.usersService.getById(Number(id));
   }
-
+  
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(+id, updateUserDto);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  remove(@Param('id') id: string) {
     return this.usersService.remove(+id);
   }
+
+
+ 
+
+
 }
