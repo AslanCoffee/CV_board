@@ -21,45 +21,36 @@ export class TasksService {
 
   // async uploadFile(file) {
   //   try {
-  //     // Генерируем уникальное имя файла
   //     const uniqueFileName = new Date().getTime() + '_' + file.originalname;
-  //     // Указываем путь к папке, где хотим сохранить файл
   //     const filePath = path.join('C:\\Users\\dragm\\Desktop\\proekt\\project\\upload', uniqueFileName);
       
-  //     // Создаем поток для записи файла
   //     const fileStream = fs.createWriteStream(filePath);
       
-  //     // Записываем файл в поток
   //     fileStream.write(file.buffer);
   //     fileStream.end();
       
-  //     // Возвращаем путь к сохраненному файлу
   //     return { filePath };
   //   } catch (error) {
   //     console.error('Ошибка при сохранении файла:', error);
   //     throw error;
-  //   } // Действия с загруженным файлом (например, сохранение его пути в базе данных)
   // }
 
 
   // async attachDocumentToTask(taskId: number, number: string, file: Express.Multer.File): Promise<void> {
   //   try {
-  //     // Проверяем, существует ли задача с заданным идентификатором
   //     const task = await this.prismaService.task.findUnique({ where: { id: taskId } });
   //     if (!task) {
   //       throw new Error(`Task with ID ${taskId} not found`);
   //     }
 
-  //     // Сохраняем файл в указанную папку
-  //     const uploadDir = 'uploads'; // Папка для загрузки файлов
+  //     const uploadDir = 'uploads';
   //     const filePath = path.join(__dirname, '..', '..', uploadDir, file.originalname);
   //     fs.writeFileSync(filePath, file.buffer);
 
-  //     // Создаем запись о документе и связываем его с задачей
   //     await this.prismaService.document.create({
   //       data: {
   //         number,
-  //         url: filePath, // Используем путь к файлу в качестве URL
+  //         url: filePath,
   //         task: { connect: { id: taskId } }
   //       }
   //     });

@@ -18,22 +18,19 @@ export class DocumentsService {
   async uploadDocument(taskId: string, number: string, file: Express.Multer.File): Promise<void> {
     try {
       const uniqueFileName = new Date().getTime() + '_' + file.originalname;
-      const uploadDir = 'C:\\Users\\dragm\\Desktop\\proekt\\project\\upload'; // Папка для загрузки файлов
+      const uploadDir = 'upload'; 
       const filePath = path.join(uploadDir, uniqueFileName);
   
       const fileStream = fs.createWriteStream(filePath);
   
-      // Обработка события ошибки записи файла
       fileStream.on('error', (err) => {
         throw new Error(`Failed to write file: ${err.message}`);
       });
-      // Обработка события успешной записи файла
       fileStream.on('finish', async () => {
-        // Создаем запись о документе и связываем его с задачей
         const document = await this.prisma.document.create({
           data: {
             number,
-            url: `\\upload\\${uniqueFileName}`, // Используем путь к файлу в качестве URL
+            url: `${uniqueFileName}`, 
             task: { connect: { id: parseInt(taskId) } }
           }
         });
@@ -41,7 +38,6 @@ export class DocumentsService {
         return document;
       });
   
-      // Записываем данные файла в поток
       fileStream.write(file.buffer);
       fileStream.end();
     } catch (error) {
@@ -60,6 +56,16 @@ export class DocumentsService {
     });
 
     return documents.map((doc: Document) => doc.url);
+  }
+
+  async getFile(filename: string) {
+    const uploadDir = 'upload'; // Папка, где хранятся загруженные файлы
+    const filePath = path.join(uploadDir, filename);
+    // const fileStat = await fs.stat(filePath);
+    return {
+      path: filePath,
+      originalname: filename,
+    };
   }
 
   findAll() {

@@ -49,16 +49,13 @@ export class WorkGroupService {
         throw new Error(`Work group with ID ${groupId} not found`);
       }
 
-      // Check if user is already in the group
       const userExistsInGroup = group.users.some((user) => user.id === userId);
       if (userExistsInGroup) {
         throw new Error(`User with ID ${userId} is already in the group`);
       }
 
-      // Retrieve user data
       const user = await this.usersService.getById(userId);
 
-      // Add the user to the group
       await this.prismaService.workGroup.update({
         where: { id: groupId },
         data: {

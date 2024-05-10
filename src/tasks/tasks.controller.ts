@@ -15,8 +15,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import JwtAuthenticationGuard from 'src/auth/jwt-authentication.guard'; // Пример guard'а для JWT-аутентификации
-import AuthMiddleware from 'src/guards/tasks.guard'; // Ваш middleware для авторизации
+import JwtAuthenticationGuard from 'src/auth/jwt-authentication.guard';
+import AuthMiddleware from 'src/guards/tasks.guard';
 import { Status } from './status.enum';
 import { DocumentsService } from 'src/documents/documents.service';
 
@@ -34,9 +34,9 @@ export class TasksController {
   }
   
   @Post('/documents')
-  @UseInterceptors(FileInterceptor('file')) // Обработка загружаемого файла
+  @UseInterceptors(FileInterceptor('file'))
   async attachDocumentToTask(
-    @Body() requestBody: { taskId: string, number: string }, // Предполагается, что вы передаете taskId и number в теле запроса
+    @Body() requestBody: { taskId: string, number: string },
     @UploadedFile() file: Express.Multer.File,
   ): Promise<void> {
     const { taskId, number } = requestBody;
@@ -79,11 +79,11 @@ export class TasksController {
   //   }
   
     // @Post(':taskId/documents')
-    // @UseInterceptors(FileInterceptor('file')) // Обработка загружаемого файла
+    // @UseInterceptors(FileInterceptor('file')) 
     // async attachDocumentToTask(
     //   @Param('taskId') taskId: number,
     //   @UploadedFile() file: Express.Multer.File,
-    //   @Body() documentData: { number: string } // Предполагается, что вы передаете только номер документа в теле запроса
+    //   @Body() documentData: { number: string } 
     // ): Promise<void> {
     //   const { number } = documentData;
     //   await this.tasksService.attachDocumentToTask(taskId, number, file);

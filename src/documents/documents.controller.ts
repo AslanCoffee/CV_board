@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Res, Body, Patch, Param, Delete } from '@nestjs/common';
 import { DocumentsService } from './documents.service';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
+import { Response } from 'express';
 
 @Controller('documents')
 export class DocumentsController {
@@ -19,6 +20,18 @@ export class DocumentsController {
     } catch (error) {
       console.error('Ошибка при получении документов для задачи:', error);
       throw new Error('Ошибка сервера');
+    }
+  }
+
+  @Get('download/:filename')
+  async downloadFile(@Param('filename') filename: string, @Res() res: Response) {
+    try {
+      console.log(res);
+      const file = await this.documentsService.getFile(filename); 
+      res.download(file.path, file.originalname); 
+    } catch (error) {
+      console.error('Ошибка при скачивании файла:', error);
+      res.status(500).send('Ошибка сервера');
     }
   }
 
