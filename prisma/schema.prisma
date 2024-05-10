@@ -17,6 +17,7 @@ enum Status {
   DONE
   CANCEL
   REWORK
+  DELETED
 }
 
 enum Role {
@@ -32,33 +33,26 @@ model User {
   email       String      @unique
   password    String      
   role        Role        @default(EMPLOYEE)
-  marks       ActiveMark[]
-  work        UserWork[]
+  group       WorkGroup[]
 }
 
-model ActiveMark {
+model WorkGroup {
   id          Int         @default(autoincrement()) @id
   users       User[]
   task        Task        @relation(fields: [taskId], references: [id])
   taskId      Int         @unique
-}
-
-model UserWork {
-  id          Int         @id @default(autoincrement())
-  user        User?       @relation(fields: [userId], references: [id])
-  userId      Int
-  taskCreate  Int
-  taskupdate  Int
-  taskDelete  Int
-  taskDone    Int
-  taskWork    Int
+  history     History[]
+  createDate  DateTime    @default(now())
+  doneDate    DateTime?
+  deleteDate  DateTime?
+  activeWork  Boolean     @default(true)
 }
 
 model Document {
   id          Int         @id @default(autoincrement())
-  number      String      @unique
-  url         String      @unique
-  taskPin     Task        @relation(fields: [taskId], references: [id])
+  number      String      
+  url         String      
+  task        Task        @relation(fields: [taskId], references: [id])
   taskId      Int
 }
 
@@ -73,5 +67,15 @@ model Task {
   srcCV       String?     @unique
   description String?
   documents   Document[]
-  mark        ActiveMark?
+  group       WorkGroup?
+}
+
+model History {
+  id          Int         @default(autoincrement()) @id   
+  group       WorkGroup   @relation(fields: [groupId], references: [id])
+  groupId     Int         
+  fieldName   String
+  oldValue    String?
+  newValue    String?
+  updatedAt   DateTime    @default(now())
 }

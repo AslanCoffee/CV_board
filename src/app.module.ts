@@ -8,9 +8,9 @@ import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
 import { AuthModule } from './auth/auth.module';
 import { TasksModule } from './tasks/tasks.module';
-import { ActivemarkModule } from './activemark/activemark.module';
-import { UserworkModule } from './userwork/userwork.module';
+import { WorkGroupModule } from './workgroup/workgroup.module';
 import { ConfigModule } from '@nestjs/config';
+import { DocumentsModule } from './documents/documents.module';
 import * as Joi from '@hapi/joi';
 
 @Module({
@@ -26,11 +26,11 @@ import * as Joi from '@hapi/joi';
         PORT: Joi.number(),
       }),
     }),
-    ActivemarkModule,
-    UserworkModule,
+    WorkGroupModule,
     MulterModule.register({
       dest: './uploads',
     }),
+    DocumentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
