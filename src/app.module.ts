@@ -11,6 +11,7 @@ import { TasksModule } from './tasks/tasks.module';
 import { WorkGroupModule } from './workgroup/workgroup.module';
 import { ConfigModule } from '@nestjs/config';
 import { DocumentsModule } from './documents/documents.module';
+import { HistoryModule } from './history/history.module';
 import * as Joi from '@hapi/joi';
 
 @Module({
@@ -31,6 +32,7 @@ import * as Joi from '@hapi/joi';
       dest: './uploads',
     }),
     DocumentsModule,
+    HistoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

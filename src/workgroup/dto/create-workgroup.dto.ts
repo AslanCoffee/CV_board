@@ -1,4 +1,7 @@
 export class CreateWorkGroupDto {
-  id: number;
+  id?: number;
   taskId: number;
+  activeWork: Boolean;
+  doneDate?: Date;
+  deleteDate?: Date;
 }

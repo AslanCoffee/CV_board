@@ -2,12 +2,17 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {CreateUserDto} from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { WorkGroupService } from 'src/workgroup/workgroup.service';
+import { Role } from './role.enum';
+import { HistoryService } from 'src/history/history.service';
 
 @Injectable()
 export class UsersService {
 
   constructor(
     private readonly prismaService: PrismaService,
+    private readonly workGroupService: WorkGroupService,
+    private readonly historyService: HistoryService
   ) { }
 
   static findOne(userId: any) {
@@ -66,6 +71,27 @@ export class UsersService {
     return this.prismaService.user.update({
       where: { id },
       data: updateUserDto,
+    });
+  }
+
+  async getUsersInWorkGroup(taskId: number) {
+    const workGroupId = await this.workGroupService.findGroupId(taskId);
+    const users = await this.prismaService.user.findMany({
+      where: {
+        group: {
+          some: {
+            id: workGroupId,
+          },
+        },
+      },
+    });
+    return users;
+  }
+
+  async roleChange(userId: number, newRole: Role) {
+    return this.prismaService.user.update({
+      where: { id: userId },
+      data: { role: newRole },
     });
   }
 

@@ -28,6 +28,7 @@ export class AuthService {
         ...registrationData,
         password: hashedPassword,
         name: "User",
+        role: "EMPLOYEE",
       });
 
       createdUser.password = undefined;

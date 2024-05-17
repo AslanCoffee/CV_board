@@ -6,4 +6,5 @@ export enum Status {
   DONE = 'DONE',
   CANCEL = 'CANCEL',
   REWORK = 'REWORK',
+  DELETED = 'DELETED'
 }

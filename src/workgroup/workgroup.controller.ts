@@ -1,8 +1,9 @@
-import { Controller, Req, Get, Post, Body, Patch, Param, Delete, Catch } from '@nestjs/common';
+import { Controller, Req, Get, Post, Body, Patch, Param, Delete, Catch, UseGuards } from '@nestjs/common';
 import { WorkGroupService } from './workgroup.service';
 import { CreateWorkGroupDto } from './dto/create-workgroup.dto';
 import { UpdateWorkGroupDto } from './dto/update-workgroup.dto';
 import RequestWithUser from 'src/auth/requestWithUser.interface';
+import JwtAuthenticationGuard from 'src/auth/jwt-authentication.guard';
 
 @Controller('workgroup')
 export class WorkGroupController {
@@ -13,20 +14,15 @@ export class WorkGroupController {
     return await this.workGroupService.create(createWorkGroupDto);
   }
 
-  // @Post('/add-user')
-  // async addUserToGroup(@Body() requestBody: { groupId: number, userId: number }) {
-  //   const { groupId, userId } = requestBody;
-  //   await this.workGroupService.addUserToGroup(groupId, userId);
-  // }
-
   @Post('/add-user')
-  async addUserToGroup(@Body() groupId: number, @Req() request: RequestWithUser) {
-    await this.workGroupService.addUserToGroup(groupId, request);
+  @UseGuards(JwtAuthenticationGuard)
+  async addUserToGroup(@Body('taskId') taskId: number, @Req() request: RequestWithUser) {
+    await this.workGroupService.addUserToGroup(taskId, request.user.id);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.workGroupService.findOne(+id);
+  @Get(':id')//по taskId ищет
+  async findOne(@Param('id') id: string) {
+    return await this.workGroupService.getById(Number(id));
   }
 
   @Patch(':id')
@@ -34,8 +30,18 @@ export class WorkGroupController {
     return this.workGroupService.update(+id, updateWorkGroupDto);
   }
 
+  @Get('/find/:taskId')
+  async find(@Param('taskId') taskId: string){
+    return this.workGroupService.getUsersInWorkGroup(Number(taskId));
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.workGroupService.remove(+id);
+  }
+
+  @Get('/all')
+  async findAll() {
+    return this.workGroupService.findAll();
   }
 }

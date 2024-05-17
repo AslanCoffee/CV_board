@@ -17,12 +17,13 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import RequestWithUser from 'src/auth/requestWithUser.interface';
 import { FileInterceptor } from '@nestjs/platform-express';
 import JwtAuthenticationGuard from 'src/auth/jwt-authentication.guard';
+import { Role } from './role.enum';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get()
+  @Get('/all')
   findAll() {
     return this.usersService.findAll();
   }
@@ -32,9 +33,10 @@ export class UsersController {
     return await this.usersService.getById(Number(id));
   }
   
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  @Patch('/update/:id')
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    const idInt = parseInt(id)
+    return this.usersService.update(idInt, updateUserDto);
   }
 
   @Delete(':id')
@@ -42,8 +44,17 @@ export class UsersController {
     return this.usersService.remove(+id);
   }
 
+  @Get('/find/aslan/:taskId')
+  async findGroup(@Param('taskId') taskId: string){
+    return this.usersService.getUsersInWorkGroup(Number(taskId));
+  }
 
- 
-
+  @Patch('/role')
+  async statusChange(
+    @Body('id') userId: number,
+    @Body('role') newRole: Role,
+  ) {
+    return this.usersService.roleChange(userId, newRole);
+  }
 
 }

@@ -1,21 +1,27 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus  } from '@nestjs/common';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Document } from '@prisma/client';
+import { HistoryService } from 'src/history/history.service';
+import { WorkGroupService } from 'src/workgroup/workgroup.service';
 
 
 @Injectable()
 export class DocumentsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly historyService: HistoryService,
+    private readonly workGroupService: WorkGroupService
+  ) {}
 
   create(createDocumentDto: CreateDocumentDto) {
     return 'This action adds a new document';
   }
 
-  async uploadDocument(taskId: string, number: string, file: Express.Multer.File): Promise<void> {
+  async uploadDocument(taskId: string, number: string, file: Express.Multer.File, userId: number): Promise<void> {
     try {
       const uniqueFileName = new Date().getTime() + '_' + file.originalname;
       const uploadDir = 'upload'; 
@@ -34,12 +40,22 @@ export class DocumentsService {
             task: { connect: { id: parseInt(taskId) } }
           }
         });
-        console.log(`${uniqueFileName}`);
         return document;
       });
   
       fileStream.write(file.buffer);
       fileStream.end();
+
+      const workGroupId = await this.workGroupService.findGroupId(Number(taskId));
+
+      await this.historyService.create({
+        userId: userId,
+        groupId: workGroupId,
+        fieldName: "Загрузка",
+        oldValue: "",
+        newValue: file.originalname,
+      });
+
     } catch (error) {
       throw new Error(`Failed to upload document: ${error.message}`);
     }
@@ -51,17 +67,16 @@ export class DocumentsService {
         taskId: parseInt(taskId),
       },
       select: {
+        id: true,
         url: true,
       },
     });
-
-    return documents.map((doc: Document) => doc.url);
+    return documents.map((doc: Document) => ({ id: doc.id, url: doc.url }));
   }
 
   async getFile(filename: string) {
     const uploadDir = 'upload'; // Папка, где хранятся загруженные файлы
     const filePath = path.join(uploadDir, filename);
-    // const fileStat = await fs.stat(filePath);
     return {
       path: filePath,
       originalname: filename,
@@ -72,8 +87,19 @@ export class DocumentsService {
     return `This action returns all documents`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} document`;
+  async findOne(id: number) {
+    const subject = await this.prisma.document.findUnique({
+      where: {
+        id,
+      },
+    });
+    if (subject) {
+      return subject;
+    }
+    throw new HttpException(
+      'Subject with this id does not exist',
+      HttpStatus.NOT_FOUND,
+    );
   }
 
   update(id: number, updateDocumentDto: UpdateDocumentDto) {
