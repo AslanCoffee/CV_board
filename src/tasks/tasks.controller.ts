@@ -40,24 +40,15 @@ export class TasksController {
   @UseInterceptors(FileInterceptor('file'))
   @UseGuards(JwtAuthenticationGuard)
   async attachDocumentToTask(
-    @Body() requestBody: { taskId: string, number: string },
+    @Body() requestBody: { taskId: string, number: string, fileName: string },
     @UploadedFile() file: Express.Multer.File,
     @Req() request: RequestWithUser
   ): Promise<void> {
-    const { taskId, number } = requestBody;
-    const document = await this.documentsService.uploadDocument(taskId, number, file, request.user.id);
+    const { taskId, number, fileName } = requestBody;
+    const document = await this.documentsService.uploadDocument(taskId, number, fileName, file, request.user.id);
     return document;
   }
 
-  @Get('/all')
-  async findAll() {
-    return this.tasksService.findAll();
-  }
-  
-  @Get(':id')
-  async taskData() {
-    return this.tasksService.taskData();
-  }
   
   @Patch('/status')
   @UseGuards(JwtAuthenticationGuard)
@@ -76,8 +67,30 @@ export class TasksController {
   }
   
   @Delete(':id')
-  @UseGuards(JwtAuthenticationGuard, AuthMiddleware)
+  @UseGuards(JwtAuthenticationGuard)
   async remove(@Param('id') id: string) {
-    return this.tasksService.remove(+id);
+    return this.tasksService.remove(Number(id));
+  }
+  
+  @Get('/all')
+  async findAll() {
+    return this.tasksService.findAll();
+  }
+  
+  @Get(':id')
+  async taskData() {
+    return this.tasksService.taskData();
+  }
+
+  @Get('/user/workgroups-tasks')
+  @UseGuards(JwtAuthenticationGuard)
+  async getUserWorkGroupsTasks(@Req() request: RequestWithUser) {
+    return this.tasksService.findUserWorkGroupsTasks(request.user.id);
+  }
+
+  @Get('/user/created-tasks')
+  @UseGuards(JwtAuthenticationGuard)
+  async getUserCreatedTasks(@Req() request: RequestWithUser) {
+    return this.tasksService.findUserCreatedTasks(request.user.id);
   }
 }

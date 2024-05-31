@@ -15,11 +15,41 @@ export class UsersService {
     private readonly historyService: HistoryService
   ) { }
 
-  static findOne(userId: any) {
-    throw new Error('Method not implemented.');
-  }
-
   async remove(id: number) {
+    // Удаление всех записей History, связанных с пользователем
+    await this.prismaService.history.deleteMany({
+      where: {
+        userId: id,
+      },
+    });
+
+    // Удаление пользователя из всех групп WorkGroup
+    const userGroups = await this.prismaService.workGroup.findMany({
+      where: {
+        users: {
+          some: {
+            id: id,
+          },
+        },
+      },
+    });
+
+    for (const group of userGroups) {
+      await this.prismaService.workGroup.update({
+        where: {
+          id: group.id,
+        },
+        data: {
+          users: {
+            disconnect: {
+              id: id,
+            },
+          },
+        },
+      });
+    }
+
+    // Удаление пользователя
     return await this.prismaService.user.delete({
       where: { id: id },
     });

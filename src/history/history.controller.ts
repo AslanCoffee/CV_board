@@ -42,4 +42,19 @@ export class HistoryController {
   async history(@Param('userId') userId: string) {
     return this.historyService.getUserHistory(Number(userId))
   }
+
+  @Get(':id/keywords')
+  async getKeywordCounts(@Param('id') id: string) {
+    return this.historyService.countKeywordsByDate(Number(id));
+  }
+
+  @Get(':id/workgroups/done-tasks')
+  async getDoneTaskCount(@Param('id') id: string) {
+    return this.historyService.countDoneTasks(Number(id));
+  }
+
+  @Get(':id/:options')
+  async countCreationsByDate(@Param('id') id: string, @Param('options') options: string) {
+    return this.historyService.countCreationsByDate(Number(id), options);
+  }
 }

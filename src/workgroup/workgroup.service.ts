@@ -81,21 +81,17 @@ export class WorkGroupService {
         where: { taskId: taskId },
         include: { users: true },
       });
-
       if (!group) {
         throw new Error(`Work group with ID ${taskId} not found`);
       }
-
       const userExistsInGroup = group.users.some((user) => user.id === userId);
       if (userExistsInGroup) {
         throw new Error(`User with ID ${userId} is already in the group`);
       }
 
-
       const groupId = await this.prismaService.workGroup.findUnique({
         where: { taskId: taskId, },
       });
-
       await this.prismaService.workGroup.update({
         where: { id: groupId.id },
         data: {
@@ -104,7 +100,6 @@ export class WorkGroupService {
           },
         },
       });
-
     await this.prismaService.history.create({
       data: {
         userId: userId,

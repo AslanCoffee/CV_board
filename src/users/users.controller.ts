@@ -41,10 +41,10 @@ export class UsersController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+    return this.usersService.remove(Number(id));
   }
 
-  @Get('/find/aslan/:taskId')
+  @Get('/find/group/:taskId')
   async findGroup(@Param('taskId') taskId: string){
     return this.usersService.getUsersInWorkGroup(Number(taskId));
   }

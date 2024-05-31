@@ -21,14 +21,12 @@ export class DocumentsService {
     return 'This action adds a new document';
   }
 
-  async uploadDocument(taskId: string, number: string, file: Express.Multer.File, userId: number): Promise<void> {
+  async uploadDocument(taskId: string, number: string, fileName: string, file: Express.Multer.File, userId: number): Promise<void> {
     try {
-      const uniqueFileName = new Date().getTime() + '_' + file.originalname;
+      const uniqueFileName = new Date().getTime() + '_' + fileName;
       const uploadDir = 'upload'; 
       const filePath = path.join(uploadDir, uniqueFileName);
-  
       const fileStream = fs.createWriteStream(filePath);
-  
       fileStream.on('error', (err) => {
         throw new Error(`Failed to write file: ${err.message}`);
       });
@@ -45,9 +43,7 @@ export class DocumentsService {
   
       fileStream.write(file.buffer);
       fileStream.end();
-
       const workGroupId = await this.workGroupService.findGroupId(Number(taskId));
-
       await this.historyService.create({
         userId: userId,
         groupId: workGroupId,

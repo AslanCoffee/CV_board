@@ -20,7 +20,7 @@ export class WorkGroupController {
     await this.workGroupService.addUserToGroup(taskId, request.user.id);
   }
 
-  @Get(':id')//по taskId ищет
+  @Get(':id')
   async findOne(@Param('id') id: string) {
     return await this.workGroupService.getById(Number(id));
   }

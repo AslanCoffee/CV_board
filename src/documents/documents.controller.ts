@@ -34,7 +34,6 @@ export class DocumentsController {
     let name = path.basename(subject.url);
     let response: any;
     try {
-      //fs.accessSync(subject.url, fs.constants.F_OK); TODO: ВОЗМОЖНО ОШИБКА
       response = res.sendFile(name, { root: './upload' });
     } catch (err) {
       name = 'default.jpg';

@@ -43,7 +43,6 @@ model WorkGroup {
   task        Task        @relation(fields: [taskId], references: [id])
   taskId      Int         @unique
   history     History[]
-  createDate  DateTime    @default(now())
   doneDate    DateTime?
   deleteDate  DateTime?
   activeWork  Boolean     @default(true)
@@ -67,6 +66,7 @@ model Task {
   jobTitle    String?
   srcCV       String?
   description String?
+  createDate  String?
   documents   Document[]
   group       WorkGroup?
 }
