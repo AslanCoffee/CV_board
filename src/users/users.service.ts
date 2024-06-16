@@ -75,6 +75,12 @@ export class UsersService {
   }
 
   async getById(id: number) {
+    if (!id) {
+      throw new HttpException(
+        'User with this id does not exist',
+        HttpStatus.NOT_FOUND,
+      );
+    }
     const user = await this.prismaService.user.findUnique({
       where: {
         id,

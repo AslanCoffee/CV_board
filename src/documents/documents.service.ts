@@ -4,7 +4,8 @@ import { UpdateDocumentDto } from './dto/update-document.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
-import { Document } from '@prisma/client';
+// import { Document } from '@prisma/client';
+import { Document } from '../../node_modules/.prisma/client';
 import { HistoryService } from 'src/history/history.service';
 import { WorkGroupService } from 'src/workgroup/workgroup.service';
 
