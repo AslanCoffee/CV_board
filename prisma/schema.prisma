@@ -53,7 +53,8 @@ model WorkGroup {
 model Document {
   id          Int         @id @default(autoincrement())
   number      String      
-  url         String      
+  url         String
+  name        String?      
   task        Task        @relation(fields: [taskId], references: [id])
   taskId      Int
 }

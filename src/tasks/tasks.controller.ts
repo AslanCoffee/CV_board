@@ -40,12 +40,12 @@ export class TasksController {
   @UseInterceptors(FileInterceptor('file'))
   @UseGuards(JwtAuthenticationGuard)
   async attachDocumentToTask(
-    @Body() requestBody: { taskId: string, number: string, fileName: string },
+    @Body() requestBody: { taskId: string, number: string, fileName: string, name: string },
     @UploadedFile() file: Express.Multer.File,
     @Req() request: RequestWithUser
   ): Promise<void> {
-    const { taskId, number, fileName } = requestBody;
-    const document = await this.documentsService.uploadDocument(taskId, number, fileName, file, request.user.id);
+    const { taskId, number, fileName, name } = requestBody;
+    const document = await this.documentsService.uploadDocument(taskId, number, fileName, file, request.user.id, name);
     return document;
   }
 

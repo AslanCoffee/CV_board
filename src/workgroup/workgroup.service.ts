@@ -109,8 +109,6 @@ export class WorkGroupService {
         newValue: "",
       }
     })
-
-
     } catch (error) {
       throw new Error(`Failed to add user to group: ${error.message}`);
     }

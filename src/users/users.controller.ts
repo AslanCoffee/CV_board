@@ -18,11 +18,13 @@ import RequestWithUser from 'src/auth/requestWithUser.interface';
 import { FileInterceptor } from '@nestjs/platform-express';
 import JwtAuthenticationGuard from 'src/auth/jwt-authentication.guard';
 import { Role } from './role.enum';
+import AdminGuards from 'src/guards/users.guard';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  // @UseGuards(AdminGuards('ADMIN'))
   @Get('/all')
   findAll() {
     return this.usersService.findAll();
@@ -33,12 +35,15 @@ export class UsersController {
     return await this.usersService.getById(Number(id));
   }
   
+  // @UseGuards(AdminGuards('ADMIN'))
+  @UseGuards(JwtAuthenticationGuard)
   @Patch('/update/:id')
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     const idInt = parseInt(id)
     return this.usersService.update(idInt, updateUserDto);
   }
 
+  // @UseGuards(AdminGuards('ADMIN'))
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.usersService.remove(Number(id));
@@ -49,6 +54,8 @@ export class UsersController {
     return this.usersService.getUsersInWorkGroup(Number(taskId));
   }
 
+  // @UseGuards(AdminGuards('ADMIN'))
+  @UseGuards(JwtAuthenticationGuard)
   @Patch('/role')
   async statusChange(
     @Body('id') userId: number,

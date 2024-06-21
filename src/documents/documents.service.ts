@@ -22,11 +22,14 @@ export class DocumentsService {
     return 'This action adds a new document';
   }
 
-  async uploadDocument(taskId: string, number: string, fileName: string, file: Express.Multer.File, userId: number): Promise<void> {
+  async uploadDocument(taskId: string, number: string, fileName: string, file: Express.Multer.File, userId: number, name: string): Promise<void> {
     try {
       const uniqueFileName = new Date().getTime() + '_' + fileName;
       const uploadDir = 'upload'; 
       const filePath = path.join(uploadDir, uniqueFileName);
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
       const fileStream = fs.createWriteStream(filePath);
       fileStream.on('error', (err) => {
         throw new Error(`Failed to write file: ${err.message}`);
@@ -35,13 +38,13 @@ export class DocumentsService {
         const document = await this.prisma.document.create({
           data: {
             number,
+            name,
             url: `${uniqueFileName}`, 
             task: { connect: { id: parseInt(taskId) } }
           }
         });
         return document;
       });
-  
       fileStream.write(file.buffer);
       fileStream.end();
       const workGroupId = await this.workGroupService.findGroupId(Number(taskId));
@@ -52,7 +55,6 @@ export class DocumentsService {
         oldValue: "",
         newValue: file.originalname,
       });
-
     } catch (error) {
       throw new Error(`Failed to upload document: ${error.message}`);
     }
@@ -66,9 +68,11 @@ export class DocumentsService {
       select: {
         id: true,
         url: true,
+        name: true,
+        number: true,
       },
     });
-    return documents.map((doc: Document) => ({ id: doc.id, url: doc.url }));
+    return documents.map((doc: Document) => ({ id: doc.id, url: doc.url, name: doc.name, number: doc.number }));
   }
 
   async getFile(filename: string) {
